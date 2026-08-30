@@ -1,6 +1,7 @@
 .env
 CLAUDE.md
 **/CLAUDE.md
+.claude/
 
 # backend
 backend/venv/
