@@ -6,6 +6,7 @@ pydantic
 pydantic-settings
 groq
 httpx
+requests
 pytest
 pytest-asyncio
 mypy
