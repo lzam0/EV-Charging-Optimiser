@@ -17,6 +17,8 @@ Parameters:
 Resources:
   ApiFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
     Properties:
       # CodeUri is the repo root, not backend/, because main.py imports as
       # "backend.routers...", "backend.services..." etc - those absolute

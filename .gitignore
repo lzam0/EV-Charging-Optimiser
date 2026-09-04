@@ -21,3 +21,6 @@ pipeline/ingest/.local_raw/
 
 # playwright test artifacts
 .playwright-mcp/
+
+# SAM build output
+.aws-sam/

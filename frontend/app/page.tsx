@@ -17,7 +17,7 @@ import {MetadataList, MetadataListItem} from '@astryxdesign/core/MetadataList';
 import {Spinner} from '@astryxdesign/core/Spinner';
 import {Divider} from '@astryxdesign/core/Divider';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 interface Vehicle {
   name: string;
@@ -158,7 +158,7 @@ export default function ChargingOptimiserPage() {
       } catch {
         if (!isCancelled) {
           setVehiclesError(
-            'Could not load vehicles. Is the backend running at localhost:8000?',
+            `Could not load vehicles. Is the backend running at ${API_BASE_URL}?`,
           );
         }
       }
