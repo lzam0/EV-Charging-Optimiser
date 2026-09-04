@@ -22,7 +22,7 @@ The answer is personalised to the user's specific vehicle, current battery level
 |---|---|
 | Frontend | Next.js, React |
 | Backend | FastAPI (Python) |
-| Database | PostgreSQL on AWS RDS |
+| Database | None yet — vehicle specs are seeded fixtures; Postgres (Neon/Supabase) planned if persistence becomes necessary |
 | Pipeline scheduler | AWS EventBridge |
 | Ingestion & transform | AWS Lambda |
 | Raw data storage | AWS S3 |
