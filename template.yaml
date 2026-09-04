@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: EV Charging Optimiser - API and ingest pipeline
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 10
+    MemorySize: 256
+
+Parameters:
+  CorsOrigin:
+    Type: String
+    Description: Frontend origin allowed to call the API (e.g. the Amplify URL)
+    Default: http://localhost:3000
+
+Resources:
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      # CodeUri is the repo root, not backend/, because main.py imports as
+      # "backend.routers...", "backend.services..." etc - those absolute
+      # imports only resolve if the zip contains a real backend/ folder.
+      CodeUri: .
+      Handler: backend.lambda_handler.handler
+      Environment:
+        Variables:
+          CORS_ORIGIN: !Ref CorsOrigin
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+  RawDataBucket:
+    Type: AWS::S3::Bucket
+
+  IngestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: pipeline/ingest/
+      Handler: handler.handler
+      Environment:
+        Variables:
+          RAW_DATA_BUCKET: !Ref RawDataBucket
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref RawDataBucket
+      Events:
+        Schedule:
+          Type: Schedule
+          Properties:
+            # Matches the "Every 30 min" update frequency in the README.
+            Schedule: rate(30 minutes)
+
+Outputs:
+  ApiUrl:
+    Description: Base URL for the deployed API
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  RawDataBucketName:
+    Description: S3 bucket the ingest Lambda writes raw API responses to
+    Value: !Ref RawDataBucket
