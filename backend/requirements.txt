@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
+mangum
 sqlalchemy[asyncio]
 asyncpg
 pydantic
