@@ -1,0 +1,2 @@
+# Used by `sam build` for ApiFunction, whose CodeUri is the repo root.
+-r backend/requirements.txt

@@ -1,9 +1,8 @@
 """Lambda handler: fetch Carbon Intensity + Octopus Agile data and write raw responses to S3.
 
-Locally (no AWS credentials configured) raw responses are written under
-`pipeline/ingest/.local_raw/` instead, so this can be developed and tested
-without an AWS account. Swap `write_raw` for a real S3 `put_object` call
-once infrastructure exists (see .claude/roadmap/1.md).
+Falls back to writing under `pipeline/ingest/.local_raw/` instead when
+RAW_DATA_BUCKET isn't set, so this can be developed and tested without an
+AWS account.
 """
 
 import json
@@ -11,6 +10,7 @@ import logging
 import os
 from datetime import datetime, timezone
 
+import boto3
 import requests
 
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +36,7 @@ OCTOPUS_AGILE_URL = (
 )
 
 LOCAL_RAW_DIR = os.path.join(os.path.dirname(__file__), ".local_raw")
+RAW_DATA_BUCKET = os.environ.get("RAW_DATA_BUCKET")
 
 
 def fetch_carbon_intensity() -> dict:
@@ -66,10 +67,23 @@ def fetch_octopus_prices() -> dict:
 
 def write_raw(source: str, payload: dict) -> None:
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S")
+    body = json.dumps(payload, indent=2)
+
+    if RAW_DATA_BUCKET:
+        key = f"{source}/{timestamp}.json"
+        boto3.client("s3").put_object(
+            Bucket=RAW_DATA_BUCKET,
+            Key=key,
+            Body=body,
+            ContentType="application/json",
+        )
+        logger.info("wrote s3://%s/%s", RAW_DATA_BUCKET, key)
+        return
+
     os.makedirs(os.path.join(LOCAL_RAW_DIR, source), exist_ok=True)
     path = os.path.join(LOCAL_RAW_DIR, source, f"{timestamp}.json")
     with open(path, "w") as f:
-        json.dump(payload, f, indent=2)
+        f.write(body)
     logger.info("wrote %s", path)
 
 

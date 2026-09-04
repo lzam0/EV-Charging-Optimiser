@@ -1,0 +1,8 @@
+frontend/
+backend/tests/
+pipeline/ingest/.local_raw/
+.git/
+.aws-sam/
+node_modules/
+__pycache__/
+*.pyc
