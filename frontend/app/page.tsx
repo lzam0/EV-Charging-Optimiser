@@ -80,6 +80,20 @@ function formatCost(gbp: number): string {
   return gbp < 0 ? `-£${formatted}` : `£${formatted}`;
 }
 
+function formatDuration(startIso: string, endIso: string): string {
+  const ms = Date.parse(endIso) - Date.parse(startIso);
+  if (!Number.isFinite(ms) || ms <= 0) {
+    return 'Not available';
+  }
+  const totalMinutes = Math.round(ms / 60_000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+  return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+}
+
 const errorReasonTitle: Record<RecommendationError['reason'], string> = {
   insufficient_data: 'Not enough forecast data',
   deadline_unreachable: "This deadline can't be met",
@@ -258,6 +272,10 @@ function RecommendationHero({
         {`${formatDateTime(result.start)} – ${formatDateTime(result.end)}`}
       </Text>
       <HStack gap={6} justify="center" wrap="wrap">
+        <HeroStat
+          value={formatDuration(result.start, result.end)}
+          label="Charging time"
+        />
         <HeroStat value={formatCost(result.total_cost_gbp)} label="Cost" />
         <HeroStat
           value={`${result.kwh_needed.toFixed(2)} kWh`}

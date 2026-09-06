@@ -41,6 +41,19 @@ function metricOf(slot: ChargeSlotDto, optimizeFor: 'cost' | 'carbon'): number |
   return optimizeFor === 'cost' ? slot.price_gbp_per_kwh : slot.carbon_gco2_per_kwh;
 }
 
+function formatDuration(startMs: number, endMs: number): string {
+  const totalMinutes = Math.round((endMs - startMs) / 60_000);
+  if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) {
+    return '';
+  }
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+  return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+}
+
 function formatValue(value: number, optimizeFor: 'cost' | 'carbon'): string {
   return optimizeFor === 'cost'
     ? `£${value.toFixed(2)}/kWh`
@@ -223,6 +236,13 @@ export function ChargeTimeline({slots, start, end, optimizeFor}: ChargeTimelineP
                 fill="var(--color-accent)"
                 fillOpacity={0.16}
                 stroke="none"
+                label={{
+                  value: formatDuration(windowStart, windowEnd),
+                  position: 'insideTop',
+                  fill: 'var(--color-text-primary)',
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
               />
               <RechartsTooltip
                 content={props => (
