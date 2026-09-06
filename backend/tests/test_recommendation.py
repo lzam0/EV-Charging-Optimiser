@@ -22,7 +22,13 @@ from backend.services.recommendation import (
 FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
 
 TEST_VEHICLE = VehicleSpec(
-    name="Test EV", battery_capacity_kwh=57.5, ac_charge_rate_kw=11.0
+    name="Test EV",
+    battery_capacity_kwh=57.5,
+    ac_charge_rate_kw=11.0,
+    make="Test",
+    range_km=400.0,
+    charge_port="CCS2",
+    dc_charge_rate_kw=150.0,
 )
 
 
@@ -97,7 +103,13 @@ def test_find_best_window_no_charging_needed():
 def test_find_best_window_raises_when_not_enough_slots():
     slots = _load_slots()
     tiny_charge_rate_vehicle = VehicleSpec(
-        name="Slow charger", battery_capacity_kwh=57.5, ac_charge_rate_kw=0.5
+        name="Slow charger",
+        battery_capacity_kwh=57.5,
+        ac_charge_rate_kw=0.5,
+        make="Test",
+        range_km=400.0,
+        charge_port="CCS2",
+        dc_charge_rate_kw=150.0,
     )
     with pytest.raises(InsufficientDataError):
         find_best_window(

@@ -56,6 +56,10 @@ class VehicleSpec:
     name: str
     battery_capacity_kwh: float
     ac_charge_rate_kw: float
+    make: str
+    range_km: float
+    charge_port: str
+    dc_charge_rate_kw: float | None
 
 
 def _parse_timestamp(value: str) -> datetime:

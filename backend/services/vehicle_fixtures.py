@@ -1,30 +1,27 @@
-"""Stand-in for the real `vehicles` table (Phase 2). Approximate reference
-specs for a handful of common EVs - close enough for development, not
-guaranteed accurate to the kWh. Replace with the seeded database table once
-Phase 2 exists.
+"""Stand-in for the real `vehicles` table (Phase 2). Loads real EV specs
+from the open-ev-data dataset (see backend/scripts/generate_ev_fixtures.py)
+from a committed static JSON file - no network call here, no database.
+Replace with the seeded database table once Phase 2 exists.
 """
+
+import json
+from pathlib import Path
 
 from backend.services.recommendation import VehicleSpec
 
+FIXTURES_PATH = Path(__file__).resolve().parent.parent / "data" / "ev_fixtures.json"
+
+_raw_fixtures = json.loads(FIXTURES_PATH.read_text())
+
 VEHICLE_FIXTURES: dict[str, VehicleSpec] = {
-    "tesla_model_3_rwd": VehicleSpec(
-        name="Tesla Model 3 RWD",
-        battery_capacity_kwh=57.5,
-        ac_charge_rate_kw=11.0,
-    ),
-    "nissan_leaf_62kwh": VehicleSpec(
-        name="Nissan Leaf (62kWh)",
-        battery_capacity_kwh=59.0,
-        ac_charge_rate_kw=6.6,
-    ),
-    "vw_id3_pro": VehicleSpec(
-        name="Volkswagen ID.3 Pro",
-        battery_capacity_kwh=58.0,
-        ac_charge_rate_kw=11.0,
-    ),
-    "hyundai_kona_electric": VehicleSpec(
-        name="Hyundai Kona Electric",
-        battery_capacity_kwh=64.0,
-        ac_charge_rate_kw=10.5,
-    ),
+    entry["id"]: VehicleSpec(
+        name=entry["name"],
+        battery_capacity_kwh=entry["battery_capacity_kwh"],
+        ac_charge_rate_kw=entry["ac_charge_rate_kw"],
+        make=entry["make"],
+        range_km=entry["range_km"],
+        charge_port=entry["charge_port"],
+        dc_charge_rate_kw=entry["dc_charge_rate_kw"],
+    )
+    for entry in _raw_fixtures
 }
