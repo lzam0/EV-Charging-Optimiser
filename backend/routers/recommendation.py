@@ -19,6 +19,7 @@ from backend.services.recommendation import (
     parse_carbon_slots,
     parse_price_slots,
     find_best_window,
+    serialize_slots,
 )
 from backend.services.vehicle_fixtures import VEHICLE_FIXTURES
 from pipeline.ingest.handler import fetch_carbon_forecast, fetch_octopus_prices
@@ -90,5 +91,6 @@ async def recommend(request: RecommendationRequest) -> JSONResponse:
             "total_cost_gbp": result.total_cost_gbp,
             "average_carbon_gco2_per_kwh": result.average_carbon_gco2_per_kwh,
             "kwh_needed": result.kwh_needed,
+            "slots": serialize_slots(slots),
         }
     )

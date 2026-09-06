@@ -38,6 +38,19 @@ class ChargeSlot:
     carbon_gco2_per_kwh: float | None
 
 
+def serialize_slots(slots: list[ChargeSlot]) -> list[dict[str, object]]:
+    """Shape ChargeSlots for JSON. ISO-8601 timestamps; carbon may be None."""
+    return [
+        {
+            "start": s.start.isoformat(),
+            "end": s.end.isoformat(),
+            "price_gbp_per_kwh": s.price_gbp_per_kwh,
+            "carbon_gco2_per_kwh": s.carbon_gco2_per_kwh,
+        }
+        for s in slots
+    ]
+
+
 @dataclass(frozen=True)
 class VehicleSpec:
     name: str

@@ -16,6 +16,7 @@ from backend.services.recommendation import (
     join_price_and_carbon,
     parse_carbon_slots,
     parse_price_slots,
+    serialize_slots,
 )
 
 FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
@@ -213,3 +214,38 @@ def test_find_best_window_never_spans_a_gap_between_runs():
     # which a broken implementation could have picked.
     assert result.start == slots[2].start
     assert result.end == slots[3].end
+
+
+def test_serialize_slots_shape_and_iso_timestamps():
+    slots = [
+        _slot("2026-01-01T00:00:00+00:00", 0.5, price=0.12),
+        ChargeSlot(
+            start=datetime.fromisoformat("2026-01-01T00:30:00+00:00"),
+            end=datetime.fromisoformat("2026-01-01T01:00:00+00:00"),
+            price_gbp_per_kwh=0.09,
+            carbon_gco2_per_kwh=None,
+        ),
+    ]
+
+    payload = serialize_slots(slots)
+
+    assert len(payload) == len(slots)
+    for entry, source in zip(payload, slots):
+        assert set(entry) == {
+            "start",
+            "end",
+            "price_gbp_per_kwh",
+            "carbon_gco2_per_kwh",
+        }
+        assert datetime.fromisoformat(entry["start"]) == source.start
+        assert datetime.fromisoformat(entry["end"]) == source.end
+        assert isinstance(entry["price_gbp_per_kwh"], float)
+        assert entry["price_gbp_per_kwh"] == source.price_gbp_per_kwh
+
+    assert payload[0]["carbon_gco2_per_kwh"] == 100.0
+    # A slot with no carbon data must stay None, not become 0.0.
+    assert payload[1]["carbon_gco2_per_kwh"] is None
+
+
+def test_serialize_slots_on_empty_input():
+    assert serialize_slots([]) == []
