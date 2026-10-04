@@ -172,7 +172,7 @@ function VehicleDetails({vehicle}: {vehicle: Vehicle}) {
         <SpecStat
           hasTabularNumbers
           value={
-            vehicle.dc_charge_rate_kw !== null
+            vehicle.dc_charge_rate_kw != null
               ? `${vehicle.dc_charge_rate_kw.toFixed(0)} kW`
               : 'AC only'
           }
