@@ -7,6 +7,16 @@ Globals:
     Runtime: python3.12
     Timeout: 10
     MemorySize: 256
+  Api:
+    # Caps request rate on the public API so a scripted burst can't run up
+    # Lambda/API Gateway costs. Set via Globals (not an explicit
+    # AWS::Serverless::Api) so the implicit ServerlessRestApi - and therefore
+    # the API URL the frontend is built against - stays the same.
+    MethodSettings:
+      - ResourcePath: "/*"
+        HttpMethod: "*"
+        ThrottlingRateLimit: 10
+        ThrottlingBurstLimit: 20
 
 Parameters:
   CorsOrigin:
